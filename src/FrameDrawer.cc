@@ -29,9 +29,12 @@
 namespace ORB_SLAM2
 {
 
-FrameDrawer::FrameDrawer(Map* pMap):mpMap(pMap)
+FrameDrawer::FrameDrawer(Map* pMap, bool bReuse):mpMap(pMap)
 {
     mState=Tracking::SYSTEM_NOT_READY;
+    if (bReuse)
+        mState=Tracking::LOST;
+
     mIm = cv::Mat(480,640,CV_8UC3, cv::Scalar(0,0,0));
 }
 
@@ -91,8 +94,7 @@ cv::Mat FrameDrawer::DrawFrame()
         mnTracked=0;
         mnTrackedVO=0;
         const float r = 5;
-        const int n = vCurrentKeys.size();
-        for(int i=0;i<n;i++)
+        for(int i=0;i<N;i++)
         {
             if(vbVO[i] || vbMap[i])
             {

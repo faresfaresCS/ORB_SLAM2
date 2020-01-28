@@ -160,11 +160,14 @@ int ORBmatcher::SearchByBoW(KeyFrame* pKF,Frame &F, vector<MapPoint*> &vpMapPoin
 {
     const vector<MapPoint*> vpMapPointsKF = pKF->GetMapPointMatches();
 
+    //cout << "SearchByBoW: ref KF points size = " << vpMapPointsKF.size();
     vpMapPointMatches = vector<MapPoint*>(F.N,static_cast<MapPoint*>(NULL));
 
     const DBoW2::FeatureVector &vFeatVecKF = pKF->mFeatVec;
 
     int nmatches=0;
+
+    //cout << "SearchByBoW: CP1 nmatches =  " << nmatches << endl;
 
     vector<int> rotHist[HISTO_LENGTH];
     for(int i=0;i<HISTO_LENGTH;i++)
@@ -354,7 +357,7 @@ int ORBmatcher::SearchByProjection(KeyFrame* pKF, cv::Mat Scw, const vector<MapP
         if(PO.dot(Pn)<0.5*dist)
             continue;
 
-        int nPredictedLevel = pMP->PredictScale(dist,pKF);
+        int nPredictedLevel = pMP->PredictScale(dist,pKF->mfLogScaleFactor);
 
         // Search in a radius
         const float radius = th*pKF->mvScaleFactors[nPredictedLevel];
@@ -884,7 +887,7 @@ int ORBmatcher::Fuse(KeyFrame *pKF, const vector<MapPoint *> &vpMapPoints, const
         if(PO.dot(Pn)<0.5*dist3D)
             continue;
 
-        int nPredictedLevel = pMP->PredictScale(dist3D,pKF);
+        int nPredictedLevel = pMP->PredictScale(dist3D,pKF->mfLogScaleFactor);
 
         // Search in a radius
         const float radius = th*pKF->mvScaleFactors[nPredictedLevel];
@@ -1043,7 +1046,7 @@ int ORBmatcher::Fuse(KeyFrame *pKF, cv::Mat Scw, const vector<MapPoint *> &vpPoi
             continue;
 
         // Compute predicted scale level
-        const int nPredictedLevel = pMP->PredictScale(dist3D,pKF);
+        const int nPredictedLevel = pMP->PredictScale(dist3D,pKF->mfLogScaleFactor);
 
         // Search in a radius
         const float radius = th*pKF->mvScaleFactors[nPredictedLevel];
@@ -1183,7 +1186,7 @@ int ORBmatcher::SearchBySim3(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint*> &
             continue;
 
         // Compute predicted octave
-        const int nPredictedLevel = pMP->PredictScale(dist3D,pKF2);
+        const int nPredictedLevel = pMP->PredictScale(dist3D,pKF2->mfLogScaleFactor);
 
         // Search in a radius
         const float radius = th*pKF2->mvScaleFactors[nPredictedLevel];
@@ -1263,7 +1266,7 @@ int ORBmatcher::SearchBySim3(KeyFrame *pKF1, KeyFrame *pKF2, vector<MapPoint*> &
             continue;
 
         // Compute predicted octave
-        const int nPredictedLevel = pMP->PredictScale(dist3D,pKF1);
+        const int nPredictedLevel = pMP->PredictScale(dist3D,pKF1->mfLogScaleFactor);
 
         // Search in a radius of 2.5*sigma(ScaleLevel)
         const float radius = th*pKF1->mvScaleFactors[nPredictedLevel];
@@ -1520,7 +1523,7 @@ int ORBmatcher::SearchByProjection(Frame &CurrentFrame, KeyFrame *pKF, const set
                 if(dist3D<minDistance || dist3D>maxDistance)
                     continue;
 
-                int nPredictedLevel = pMP->PredictScale(dist3D,&CurrentFrame);
+                int nPredictedLevel = pMP->PredictScale(dist3D,CurrentFrame.mfLogScaleFactor);
 
                 // Search in a window
                 const float radius = th*CurrentFrame.mvScaleFactors[nPredictedLevel];

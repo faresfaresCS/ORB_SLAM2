@@ -23,11 +23,11 @@
 #include<algorithm>
 #include<fstream>
 #include<chrono>
-
+#include <unistd.h>	
 #include<opencv2/core/core.hpp>
 
 #include<System.h>
-
+#include <Converter.h>	
 using namespace std;
 
 void LoadImages(const string &strFile, vector<string> &vstrImageFilenames,

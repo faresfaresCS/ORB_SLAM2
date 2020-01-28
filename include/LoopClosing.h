@@ -80,8 +80,6 @@ public:
 
     bool isFinished();
 
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
 protected:
 
     bool CheckNewKeyFrames();
@@ -141,9 +139,6 @@ protected:
 
     // Fix scale in the stereo/RGB-D case
     bool mbFixScale;
-
-
-    bool mnFullBAIdx;
 };
 
 } //namespace ORB_SLAM

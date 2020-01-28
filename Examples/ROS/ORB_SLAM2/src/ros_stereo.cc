@@ -65,11 +65,10 @@ int main(int argc, char **argv)
 
     ImageGrabber igb(&SLAM);
 
-    stringstream ss(argv[3]);
-	ss >> boolalpha >> igb.do_rectify;
+    if(argv[3])
+    {
+        igb.do_rectify = true;
 
-    if(igb.do_rectify)
-    {      
         // Load settings related to stereo calibration
         cv::FileStorage fsSettings(argv[2], cv::FileStorage::READ);
         if(!fsSettings.isOpened())
