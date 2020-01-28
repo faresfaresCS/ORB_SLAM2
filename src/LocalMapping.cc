@@ -91,7 +91,7 @@ void LocalMapping::Run()
             // Safe area to stop
             while(isStopped() && !CheckFinish())
             {
-                usleep(3000);
+                usleep(5000);
             }
             if(CheckFinish())
                 break;
@@ -644,7 +644,9 @@ void LocalMapping::KeyFrameCulling()
             continue;
         const vector<MapPoint*> vpMapPoints = pKF->GetMapPointMatches();
 
-        int nObs = 3;
+        int /*nObs = 2;
+        if(mbMonocular)*/
+            nObs = 3;
         const int thObs=nObs;
         int nRedundantObservations=0;
         int nMPs=0;

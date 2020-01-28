@@ -29,10 +29,21 @@
 
 #include<opencv2/core/core.hpp>
 
-#include"../../../include/System.h"
+#include "../../../include/System.h"
+#include <geometry_msgs/PoseStamped.h>
+#include "geometry_msgs/TransformStamped.h" 
+#include <tf/tf.h> 
+#include <tf/transform_datatypes.h> 
+#include <tf/transform_broadcaster.h>
+#include "../../../include/Converter.h"
 
 using namespace std;
+using namespace tf;
 
+#include <chrono>
+//FIRAS
+int framenum=1;
+//FIRAS END
 class ImageGrabber
 {
 public:
@@ -57,7 +68,7 @@ int main(int argc, char **argv)
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true);
-
+    
     ImageGrabber igb(&SLAM);
 
     ros::NodeHandle nodeHandler;
@@ -70,7 +81,26 @@ int main(int argc, char **argv)
 
     // Save camera trajectory
     SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory.txt");
+ //    //firas
+	// std::ofstream myfile2;
+	// myfile2.open("pointData.csv");
 
+	// string filename = "descriptorsData.xml";
+	// cv::FileStorage fs(filename, cv::FileStorage::WRITE);
+	// fs.open(filename, cv::FileStorage::WRITE);
+
+	// int i=0;
+
+	// std::vector<ORB_SLAM2::MapPoint*> allMapPoints = SLAM.GetMap()->GetAllMapPoints();
+	// for(auto p : allMapPoints) {
+	//  	Eigen::Matrix<double, 3, 1> v = ORB_SLAM2::Converter::toVector3d(p->GetWorldPos());
+	//  	cv::Mat desc = p->GetDescriptor();
+	//  	myfile2 << v.x() << "," << v.y() << "," << v.z() << std::endl;
+	//  	fs << "desc" + std::to_string(i++) << desc;
+	// }
+
+	// fs.release();
+	// //firas end (kept line 100 as comment!!! not sure about this)
     ros::shutdown();
 
     return 0;
@@ -89,8 +119,86 @@ void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr& msg)
         ROS_ERROR("cv_bridge exception: %s", e.what());
         return;
     }
+ //    //firas
+	// std::string imname = std::to_string(framenum);
+ //    cv::Mat firimg=cv_ptr->image;
+ //    cv::imwrite ("/home/fares/PycharmProjects/Point-Tracker/Data/allframes/img"+imname+".jpg",cv_ptr->image );
+	// // firas end
+    cv::Mat pose = mpSLAM->TrackMonocular(cv_ptr->image,cv_ptr->header.stamp.toSec());
+    if (pose.empty())
+        return;
+    
+    // transform into right handed camera frame
+    tf::Matrix3x3 rh_cameraPose(  - pose.at<float>(0,0),   pose.at<float>(0,1),   pose.at<float>(0,2),
+                                  - pose.at<float>(1,0),   pose.at<float>(1,1),   pose.at<float>(1,2),
+                                    pose.at<float>(2,0), - pose.at<float>(2,1), - pose.at<float>(2,2));
 
-    mpSLAM->TrackMonocular(cv_ptr->image,cv_ptr->header.stamp.toSec());
+    tf::Vector3 rh_cameraTranslation( pose.at<float>(0,3),pose.at<float>(1,3), - pose.at<float>(2,3) );
+ //    //firas 
+ //    float data[9] = {- pose.at<float>(0,0), pose.at<float>(0,1), pose.at<float>(0,2),- pose.at<float>(1,0),  pose.at<float>(1,1),pose.at<float>(1,2),pose.at<float>(2,0), - pose.at<float>(2,1), - pose.at<float>(2,2) };
+ //    float data2[3] = {pose.at<float>(0,3),pose.at<float>(1,3), - pose.at<float>(2,3)};
+ //    cv::Mat rvec = cv::Mat(3, 3, CV_32F, data);
+ //    cv::Mat tvec = cv::Mat(3, 1, CV_32F, data2);
+	
+	// cv::Mat R;
+	// cv::Mat Fcampos(3, 1, CV_32F);
+	// Fcampos = -(rvec.t()) * tvec; 
+	// double xit = Fcampos.at<double>(0,0);
+	// double yit = Fcampos.at<double>(1,0);
+	// double zit = Fcampos.at<double>(2,0);
+ //    //firas end
+ //    //firas
+
+ //    ofstream Rfile;
+ //    ofstream T;
+ //    Rfile.open("/home/fares/PycharmProjects/Point-Tracker/Data/R/"+imname+".txt");
+ //    T.open("/home/fares/PycharmProjects/Point-Tracker/Data/T/"+imname+".txt");
+    
+
+ //    Rfile << pose.at<float>(0,0) << " "<< pose.at<float>(0,1)<<" "<< pose.at<float>(0,2)<< "; "<<pose.at<float>(1,0)<<" "<<   pose.at<float>(1,1)<< " " << pose.at<float>(1,2)<<" ;"<<pose.at<float>(2,0)<< " "<< pose.at<float>(2,1)<<" "<< pose.at<float>(2,2); 
+ //    T << pose.at<float>(0,3)<< " " << pose.at<float>(1,3) << " " << pose.at<float>(2,3);
+ //    //firas end
+    //rotate 270deg about z and 270deg about x
+    tf::Matrix3x3 rotation270degZX( 0, 0, 1,
+                                   -1, 0, 0,
+                                    0,-1, 0);
+
+    //publish right handed, x forward, y right, z down (NED)
+    static tf::TransformBroadcaster br;
+    tf::Transform transformCoordSystem = tf::Transform(rotation270degZX,tf::Vector3(0.0, 0.0, 0.0));
+    br.sendTransform(tf::StampedTransform(transformCoordSystem, ros::Time::now(), "camera_link", "camera_pose"));
+
+    tf::Transform transformCamera = tf::Transform(rh_cameraPose,rh_cameraTranslation);
+    br.sendTransform(tf::StampedTransform(transformCamera, ros::Time::now(), "camera_pose", "pose"));
+    //firas 
+    // ofstream P;    
+    // ofstream P2;
+    //firas end
+    ofstream myfile;
+    using namespace std::chrono;
+    static milliseconds ms = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
+    static std::string which_file = "1";
+    if(duration_cast< milliseconds >(system_clock::now().time_since_epoch()) - ms > milliseconds(10))
+    {
+        which_file = which_file == "1" ? "2" : "1";
+        ms = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
+        myfile.open ("/home/fares/PycharmProjects/Point-Tracker/Data/realtimepos" + which_file + ".csv");
+        myfile << pose.at<float>(0,3) << " " << pose.at<float>(1,3) << " " << pose.at<float>(2,3);
+        myfile.close();
+        //firas
+        // P.open("/home/fares/PycharmProjects/Point-Tracker/Data/P/"+imname+".txt");
+        // P2.open("/home/fares/PycharmProjects/Point-Tracker/Data/P2/"+imname+".txt");
+        // P <<std::setprecision(std::numeric_limits<long double>::digits10 + 1) <<xit<<" "<< std::setprecision(std::numeric_limits<long double>::digits10 + 1) <<yit  << " "<< std::setprecision(std::numeric_limits<long double>::digits10 + 1) << zit;
+        // P2 << std::setprecision(std::numeric_limits<long double>::digits10 + 1) <<pose.at<float>(0,3)<<" "<< std::setprecision(std::numeric_limits<long double>::digits10 + 1) <<pose.at<float>(1,3)  << " "<< std::setprecision(std::numeric_limits<long double>::digits10 + 1) << pose.at<float>(1,3);
+        // P.close();
+        // P2.close();
+        //FIRAS END
+    }
+    // Rfile.close();
+    // T.close();
+    // framenum++;
+    
+
 }
 
 

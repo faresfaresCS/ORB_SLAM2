@@ -25,6 +25,13 @@
 #include "KeyFrame.h"
 #include <set>
 
+#include <boost/serialization/serialization.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/split_member.hpp>
+
 #include <mutex>
 
 
@@ -45,8 +52,6 @@ public:
     void EraseMapPoint(MapPoint* pMP);
     void EraseKeyFrame(KeyFrame* pKF);
     void SetReferenceMapPoints(const std::vector<MapPoint*> &vpMPs);
-    void InformNewBigChange();
-    int GetLastBigChangeIdx();
 
     std::vector<KeyFrame*> GetAllKeyFrames();
     std::vector<MapPoint*> GetAllMapPoints();
@@ -61,10 +66,10 @@ public:
 
     vector<KeyFrame*> mvpKeyFrameOrigins;
 
-    std::mutex mMutexMapUpdate;
+    mutable std::mutex mMutexMapUpdate;
 
     // This avoid that two points are created simultaneously in separate threads (id conflict)
-    std::mutex mMutexPointCreation;
+    mutable std::mutex mMutexPointCreation;
 
 protected:
     std::set<MapPoint*> mspMapPoints;
@@ -74,12 +79,29 @@ protected:
 
     long unsigned int mnMaxKFid;
 
-    // Index related to a big change in the map (loop closure, global BA)
-    int mnBigChangeIdx;
-
     std::mutex mMutexMap;
+
+	friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+	{
+		boost::serialization::split_member(ar, *this, version);
+	}
+		
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const;
+	
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version);
+	
+	
 };
 
-} //namespace ORB_SLAM
 
+
+
+	
+} //namespace ORB_SLAM
 #endif // MAP_H
