@@ -1,0 +1,6 @@
+# 
+alias videostream='source /home/fares/src/orbslam2/video_stream_opencv/build/devel/setup.bash && roslaunch video_stream_opencv camera.launch'
+alias runorb='cd ~/src/orbslam2/ORB_SLAM2 && rosrun ORB_SLAM2 Mono Vocabulary/ORBvoc.txt Examples/Monocular/TUM1.yaml'
+alias saveorb='cd ~/src/orbslam2/ORB_SLAM2 && rosrun ORB_SLAM2 Mono_Save Vocabulary/ORBvoc.txt Examples/Monocular/TUM1.yaml 0'
+alias loadorb='cd ~/src/orbslam2/ORB_SLAM2 && rosrun ORB_SLAM2 Mono_Load Vocabulary/ORBvoc.txt Examples/Monocular/TUM1.yaml 0'
+alias drone='cd ~/PycharmProjects/Point-Tracker && sudo python3 telloSwarm.py'
