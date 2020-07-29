@@ -1,6 +1,5 @@
-# ORB-SLAM2
-# Supports SAVE MAP + LOAD MAP
-# Supports Tello Dji SDK
+# ORB-SLAM2 with SAVE MAP + LOAD MAP functionality
+# Supports Tello Dji SDK & ROS
 
 **Authors:** [Raul Mur-Artal](http://webdiis.unizar.es/~raulmur/), [Juan D. Tardos](http://webdiis.unizar.es/~jdtardos/), [J. M. M. Montiel](http://webdiis.unizar.es/~josemari/) and [Dorian Galvez-Lopez](http://doriangalvez.com/) ([DBoW2](https://github.com/dorian3d/DBoW2))
 
