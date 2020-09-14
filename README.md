@@ -140,7 +140,7 @@ For a monocular input from topic `/camera/image_raw` run node ORB_SLAM2/Mono. Yo
 ##. Processing your own sequences
 You will need to create a settings file with the calibration of your camera. See the settings file provided for the TUM and KITTI datasets for monocular, stereo and RGB-D cameras. We use the calibration model of OpenCV. See the examples to learn how to create a program that makes use of the ORB-SLAM2 library and how to pass images to the SLAM system. Stereo input must be synchronized and rectified. RGB-D input must be synchronized and depth registered.
 
-#9. SLAM and Localization Modes
+### SLAM and Localization Modes
 You can change between the *SLAM* and *Localization mode* using the GUI of the map viewer.
 
 ### SLAM Mode
@@ -148,6 +148,3 @@ This is the default mode. The system runs in parallal three threads: Tracking, L
 
 ### Localization Mode
 This mode can be used when you have a good map of your working area. In this mode the Local Mapping and Loop Closing are deactivated. The system localizes the camera in the map (which is no longer updated), using relocalization if needed. 
-
-ORB_SLAM2_RBD
-# ORB-SLAM2
