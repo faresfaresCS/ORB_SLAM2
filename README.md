@@ -62,8 +62,13 @@ If you use ORB-SLAM2 in an academic work, please cite:
 We use the new thread and chrono functionalities of C++11.
 
 ## Pangolin
+```
 mkdir ORB_SLAM2
+```
+```
 cd ORB_SLAM2
+```
+
 install Pangoline
 
 We use [Pangolin](https://github.com/stevenlovegrove/Pangolin) for visualization and user interface. Dowload and install instructions can be found at: https://github.com/stevenlovegrove/Pangolin.
