@@ -56,12 +56,16 @@ If you use ORB-SLAM2 in an academic work, please cite:
      }
 
 #2. Prerequisites
-We have tested the library in **Ubuntu 12.04** and **14.04**, but it should be easy to compile in other platforms. A powerful computer (e.g. i7) will ensure real-time performance and provide more stable and accurate results.
+**Ubuntu 18.04**
 
 ## C++11 or C++0x Compiler
 We use the new thread and chrono functionalities of C++11.
 
 ## Pangolin
+mkdir ORB_SLAM2
+cd ORB_SLAM2
+install Pangoline
+
 We use [Pangolin](https://github.com/stevenlovegrove/Pangolin) for visualization and user interface. Dowload and install instructions can be found at: https://github.com/stevenlovegrove/Pangolin.
 
 ## OpenCV
