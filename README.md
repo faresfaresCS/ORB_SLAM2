@@ -35,6 +35,7 @@ If you use ORB-SLAM2 in an academic work, please cite:
      }
 
 #2. Prerequisites
+
 **Ubuntu 18.04**
 
 ## C++11 or C++0x Compiler
@@ -43,8 +44,6 @@ We use the new thread and chrono functionalities of C++11.
 ## Pangolin
 ```
 mkdir ORB_SLAM2
-```
-```
 cd ORB_SLAM2
 ```
 
