@@ -1,9 +1,7 @@
 # ORB-SLAM2 with SAVE MAP + LOAD MAP functionality
 # Supports Tello Dji SDK & ROS
 
-**Authors:** [Raul Mur-Artal](http://webdiis.unizar.es/~raulmur/), [Juan D. Tardos](http://webdiis.unizar.es/~jdtardos/), [J. M. M. Montiel](http://webdiis.unizar.es/~josemari/) and [Dorian Galvez-Lopez](http://doriangalvez.com/) ([DBoW2](https://github.com/dorian3d/DBoW2))
-
-**Current version:** 1.0.0 
+**Forked from:** https://github.com/raulmur/ORB_SLAM2
 
 ORB-SLAM2 with SAVE MAP + LOAD MAP functionality
 Supports Tello Dji SDK & ROS
@@ -14,27 +12,8 @@ ORB-SLAM2 is a real-time SLAM library for **Monocular**, **Stereo** and **RGB-D*
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=dF7_I2Lin54
 " target="_blank"><img src="http://img.youtube.com/vi/dF7_I2Lin54/0.jpg" 
 alt="Tsukuba Dataset" width="240" height="180" border="10" /></a>
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=51NQvg5n-FE
-" target="_blank"><img src="http://img.youtube.com/vi/51NQvg5n-FE/0.jpg" 
-alt="KITTI Dataset" width="240" height="180" border="10" /></a>
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=LnbAI-o7YHk
-" target="_blank"><img src="http://img.youtube.com/vi/LnbAI-o7YHk/0.jpg" 
-alt="TUM RGBD Dataset" width="240" height="180" border="10" /></a>
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=MUyNOEICrf8
-" target="_blank"><img src="http://img.youtube.com/vi/MUyNOEICrf8/0.jpg" 
-alt="EuRoC Dataset (V1_02, V1_03)" width="240" height="180" border="10" /></a>
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=xXt90wZejwk
-" target="_blank"><img src="http://img.youtube.com/vi/xXt90wZejwk/0.jpg" 
-alt="EuRoC Dataset (V1_02, V1_03)" width="240" height="180" border="10" /></a>
-
-**Notice for ORB-SLAM Monocular users:**
-The monocular capabilities of ORB-SLAM2 compared to [ORB-SLAM Monocular](https://github.com/raulmur/ORB_SLAM) are similar. However in ORB-SLAM2 we apply a full bundle adjustment after a loop closure, the extraction of ORB is slightly different (trying to improve the dispersion on the image) and the tracking is also slightly faster. The GUI of ORB-SLAM2 also provides you new capabilities as the *modes* mentioned above and a reset button. We recommend you to try this new software :)
 
 ###Related Publications:
-
-[1] Raúl Mur-Artal, J. M. M. Montiel and Juan D. Tardós. **ORB-SLAM: A Versatile and Accurate Monocular SLAM System**. *IEEE Transactions on Robotics,* vol. 31, no. 5, pp. 1147-1163, 2015. **[PDF](http://webdiis.unizar.es/~raulmur/MurMontielTardosTRO15.pdf)**
-
-[2] Dorian Gálvez-López and Juan D. Tardós. **Bags of Binary Words for Fast Place Recognition in Image Sequences**. *IEEE Transactions on Robotics,* vol. 28, no. 5, pp.  1188-1197, 2012. **[PDF](http://doriangalvez.com/php/dl.php?dlp=GalvezTRO12.pdf)**
 
 #1. License
 
