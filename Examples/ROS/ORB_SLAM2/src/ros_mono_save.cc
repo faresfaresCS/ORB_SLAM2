@@ -28,9 +28,16 @@
 #include <cv_bridge/cv_bridge.h>
 #include "geometry_msgs/PoseStamped.h"
 #include <tf/transform_broadcaster.h>
-
-#include<opencv2/core/core.hpp>
+#include <tf/transform_datatypes.h>
+#include <tf/LinearMath/Matrix3x3.h>
+#include <opencv2/core/core.hpp>
 #include "Converter.h"
+#include <iomanip>
+#include <tf2/LinearMath/Matrix3x3.h>
+#include <tf2/utils.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2/transform_datatypes.h>
+#include <opencv2/core/mat.hpp>
 
 
 #include"../../../include/System.h"
@@ -102,6 +109,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "Mono");
     ros::start();
 	bool bReuseMap = false;
+    
     if(argc < 4)
     {
         cerr << endl << "Usage: rosrun ORB_SLAM2 Mono path_to_vocabulary path_to_settings" << endl;        
@@ -170,8 +178,13 @@ int main(int argc, char **argv)
 
 void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr& msg)
 {
-    //ofstream myfile2;
-    //ofstream myfile3;
+	ofstream myfile;
+    ofstream myfile3;
+    ofstream myfile4;
+    ofstream myfile5;
+    ofstream myfile6;
+    ofstream myfile7;
+    ofstream myfile8;
 
     // Copy the ros image message to cv::Mat.
     cv_bridge::CvImageConstPtr cv_ptr;
@@ -186,52 +199,77 @@ void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr& msg)
     }
 
     cv::Mat pose = mpSLAM->TrackMonocular(cv_ptr->image,cv_ptr->header.stamp.toSec());
+
     PublishPose(pose);
     //usleep(10000);
     if (pose.empty())
         return;
 
-    // transform into right handed camera frame
-    tf::Matrix3x3 rh_cameraPose(  - pose.at<float>(0,0),   pose.at<float>(0,1),   pose.at<float>(0,2),
-                                  - pose.at<float>(1,0),   pose.at<float>(1,1),   pose.at<float>(1,2),
-                                    pose.at<float>(2,0), - pose.at<float>(2,1), - pose.at<float>(2,2));
+    /************************** wc *************************/
+    cv::Mat R_wc = pose.rowRange(0,3).colRange(0,3);
+    cv::Mat t_wc = pose.rowRange(0,3).col(3);
 
-    tf::Vector3 rh_cameraTranslation( pose.at<float>(0,3),pose.at<float>(1,3), - pose.at<float>(2,3) );
+    cv::Mat Rwc = pose.rowRange(0,3).colRange(0,3).t(); 
+    cv::Mat twc = -Rwc*pose.rowRange(0,3).col(3);
+    
+    cv::Mat cam_pose_wc = twc.clone();
 
-    //rotate 270deg about z and 270deg about x
-    tf::Matrix3x3 rotation270degZX( 0, 0, 1,
-                                   -1, 0, 0,
-                                    0,-1, 0);
-
-    //publish right handed, x forward, y right, z down (NED)
-    static tf::TransformBroadcaster br;
-    tf::Transform transformCoordSystem = tf::Transform(rotation270degZX,tf::Vector3(0.0, 0.0, 0.0));
-    br.sendTransform(tf::StampedTransform(transformCoordSystem, ros::Time::now(), "camera_link", "camera_pose"));
-
-    tf::Transform transformCamera = tf::Transform(rh_cameraPose,rh_cameraTranslation);
-    br.sendTransform(tf::StampedTransform(transformCamera, ros::Time::now(), "camera_pose", "pose"));
-
-    ofstream myfile;
-    using namespace std::chrono;
-    static milliseconds ms = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
-    static std::string which_file = "1";
-    if(duration_cast< milliseconds >(system_clock::now().time_since_epoch()) - ms > milliseconds(10))
-    {
-        which_file = which_file == "1" ? "2" : "1";
-        ms = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
-       // myfile2.open ("/home/fares/PycharmProjects/Point-Tracker/Data/R/Rotation" + std::to_string(frameNum) + ".csv");
-       // myfile3.open ("/home/fares/PycharmProjects/Point-Tracker/Data/T/Translation" + std::to_string(frameNum++) + ".csv");
-        myfile.open ("/home/fares/PycharmProjects/Point-Tracker/Data/realtimepos" + which_file + ".csv");
-        myfile << pose.at<float>(0,3) << " " << pose.at<float>(1,3) << " " << pose.at<float>(2,3);
-        //myfile2 << pose.at<float>(0,0) << " "<< pose.at<float>(0,1)<<" "<< pose.at<float>(0,2)<< "; "<<pose.at<float>(1,0)<<" "<<   pose.at<float>(1,1)<< " " << pose.at<float>(1,2)<<" ;"<<pose.at<float>(2,0)<< " "<< pose.at<float>(2,1)<<" "<< pose.at<float>(2,2); 
-        //myfile3 << pose.at<float>(0,3)<< " " << pose.at<float>(1,3) << " " << pose.at<float>(2,3);
+	//string new_frameNum = string(3 - std::to_string(frameNum).length(), '0') + std::to_string(frameNum);
+    //string name = "frame" + new_frameNum + ".png";
+    string name = "frame" + std::to_string(frameNum) + ".png";
+	
+	myfile.open ("/home/fares/ORB_SLAM2/ORB_SLAM2/results/frames/");
+	imwrite("/home/fares/ORB_SLAM2/ORB_SLAM2/results/frames/" + name, cv_ptr->image);
+	
+    myfile3.open ("/home/fares/ORB_SLAM2/ORB_SLAM2/results/wc/R_wc/R_wc" + std::to_string(frameNum) + ".csv");
+    myfile4.open ("/home/fares/ORB_SLAM2/ORB_SLAM2/results/wc/t_wc/t_wc" + std::to_string(frameNum) + ".csv");
+    myfile5.open ("/home/fares/ORB_SLAM2/ORB_SLAM2/results/wc/cam_pose_wc/cam_pose_wc" + std::to_string(frameNum) + ".csv");
 
 
-        myfile.close();
-        //myfile2.close();
-        //myfile3.close();
+    myfile3 <<  R_wc.at<float>(0,0) << " " << R_wc.at<float>(0,1) << " " << R_wc.at<float>(0,2) << "; " <<
+                R_wc.at<float>(1,0) << " " << R_wc.at<float>(1,1) << " " << R_wc.at<float>(1,2) << "; " <<
+                R_wc.at<float>(2,0) << " " << R_wc.at<float>(2,1) << " " << R_wc.at<float>(2,2);
 
-    }
+    myfile4 <<  t_wc.at<float>(0,0) << " " << t_wc.at<float>(0,1) << " " << t_wc.at<float>(0,2);
+                
+    myfile5 <<  cam_pose_wc.at<float>(0,0) << " " << cam_pose_wc.at<float>(0,1) << " " << cam_pose_wc.at<float>(0,2);
+
+    
+    /************************** cw *************************/
+ //   	cv::Mat pose_cw;
+ //   	pose = pose.inv();
+ //    pose_cw = pose.clone();
+
+ //    cv::Mat R_cw = pose_cw.rowRange(0,3).colRange(0,3);
+ //    cv::Mat t_cw = pose_cw.rowRange(0,3).col(3);
+
+ //    cv::Mat Rcw = pose_cw.rowRange(0,3).colRange(0,3).t(); 
+ //    cv::Mat tcw = -Rcw*pose_cw.rowRange(0,3).col(3);
+    
+ //    cv::Mat cam_pose_cw = tcw.clone();
+
+	// myfile6.open ("/home/fares/ORB_SLAM2/ORB_SLAM2/results/cw/R_cw/R_cw" + std::to_string(frameNum) + ".csv");
+ //    myfile7.open ("/home/fares/ORB_SLAM2/ORB_SLAM2/results/cw/t_cw/t_cw" + std::to_string(frameNum) + ".csv");
+ //    myfile8.open ("/home/fares/ORB_SLAM2/ORB_SLAM2/results/cw/cam_pose_cw/cam_pose_cw" + std::to_string(frameNum) + ".csv");
+
+
+ //    myfile6 <<  R_cw.at<float>(0,0) << " " << R_cw.at<float>(0,1) << " " << R_cw.at<float>(0,2) << "; " <<
+ //                R_cw.at<float>(1,0) << " " << R_cw.at<float>(1,1) << " " << R_cw.at<float>(1,2) << "; " <<
+ //                R_cw.at<float>(2,0) << " " << R_cw.at<float>(2,1) << " " << R_cw.at<float>(2,2);
+
+ //    myfile7 <<  t_cw.at<float>(0,0) << " " << t_cw.at<float>(0,1) << " " << t_cw.at<float>(0,2);
+                
+ //    myfile8 <<  cam_pose_cw.at<float>(0,0) << " " << cam_pose_cw.at<float>(0,1) << " " << cam_pose_cw.at<float>(0,2);
+    
+    frameNum ++;
+ 	myfile.close();
+ 	myfile3.close();
+    myfile4.close();
+    myfile5.close();
+    // myfile6.close();
+    // myfile7.close();
+    // myfile8.close();
+   
 }
 
 
